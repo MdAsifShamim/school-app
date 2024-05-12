@@ -16,14 +16,16 @@ public class SecurityConfig {
 	SecurityFilterChain customeSecurityFilter(HttpSecurity httpSequrity) throws Exception{
 		httpSequrity
 		.csrf(csrf->csrf.disable())
-		.authorizeHttpRequests(request->request.requestMatchers("/register").permitAll());
+		.authorizeHttpRequests(request->request.requestMatchers("/sch/app/v1/**").permitAll());
 		httpSequrity.formLogin(Customizer.withDefaults());
-		httpSequrity.httpBasic(Customizer.withDefaults());
+		//httpSequrity.httpBasic(Customizer.withDefaults());
 		return httpSequrity.build();
 	}
 	
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+//	@Bean
+//	PasswordEncoder passwordEncoder() {
+//		return new BCryptPasswordEncoder();
+//	}
+
+
 }
