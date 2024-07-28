@@ -24,9 +24,22 @@ public class ProjectProdSecurityConfig {
         CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
         requestHandler.setCsrfRequestAttributeName("_csrf");
 
-        http.csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers("/app/v1/register-new-user").csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+        http
+                //Session Control added invalidate session URL and Max Session with single User,and its login prevent
+                .sessionManagement(smc->smc.invalidSessionUrl("/invalidSession")
+                        .maximumSessions(2)
+                        .maxSessionsPreventsLogin(true))
 
-                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class).authorizeHttpRequests(request -> request.requestMatchers("/app/v1/register-new-user", "/app/v1/register/student").permitAll()
+                //Accept only HTTP REQUEST requiresSecure will only accept HTTPS Request
+               // .requiresChannel(rcc->rcc.anyRequest().requiresInsecure())
+
+                //Handle CSRF TOKEN GENERATION
+                .csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler)
+                        .ignoringRequestMatchers("/app/v1/register-new-user")
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+
+                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                .authorizeHttpRequests(request -> request.requestMatchers("/app/v1/register-new-user", "/app/v1/register/student","/invalidSession").permitAll()
 
                 );
 

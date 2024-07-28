@@ -29,6 +29,8 @@ public class ProjectSecurityConfig {
                 .sessionManagement(smc->smc.invalidSessionUrl("/invalidSession")
                         .maximumSessions(5)
                         .maxSessionsPreventsLogin(true))
+                //Accept only HTTp REQUEST
+                //.requiresChannel(rcc->rcc.anyRequest().requiresInsecure())
 
                 //Handle CSRF TOKEN GENERATION
                 .csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler)
