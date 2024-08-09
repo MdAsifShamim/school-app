@@ -1,15 +1,12 @@
 package com.school.app.model;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -40,7 +37,16 @@ public class User {
 	@Column(name = "role")
 	private String role;
 
+	@JsonIgnore
 	@Column(name = "create_dt")
 	private LocalDateTime createDt;
+
+	@JsonIgnore
+	@Column(name = "update_dt")
+	private LocalDateTime updateDt;
+
+	@OneToMany(mappedBy = "user" ,fetch = FetchType.EAGER)
+	@JsonIgnore
+	private Set<Authority> authorities;
 
 }

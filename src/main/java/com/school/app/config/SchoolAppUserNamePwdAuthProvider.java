@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -20,13 +21,13 @@ import org.springframework.stereotype.Component;
 import com.school.app.repository.UserRepository;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Profile("!prod")
 public class SchoolAppUserNamePwdAuthProvider implements AuthenticationProvider {
 
 
-    SchoolAppUserDetailService userDetailService;
-    PasswordEncoder passwordEncoder;
+    private final SchoolAppUserDetailService userDetailService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {

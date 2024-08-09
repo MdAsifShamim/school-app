@@ -16,15 +16,15 @@ import com.school.app.model.User;
 import com.school.app.repository.UserRepository;
 
 @RestController
-@RequestMapping("/app/v1")
+@RequestMapping("/app")
 @AllArgsConstructor
 public class RegistrationRestController {
 
 
-    PasswordEncoder passwordEncoder;
-    UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
-    @PostMapping("/register-new-user")
+    @PostMapping("/v1/register-new-user")
     public ResponseEntity<String> registerNewUser(@RequestBody User user) {
 
         ResponseEntity<String> response = null;
