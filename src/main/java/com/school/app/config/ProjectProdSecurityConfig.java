@@ -69,7 +69,7 @@ public class ProjectProdSecurityConfig {
                 }))
                 //Handle CSRF TOKEN GENERATION
                 .csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler)
-                        .ignoringRequestMatchers(version+"/register-new-user")
+                        .ignoringRequestMatchers(version+"/register-new-user","/app/actuator/**")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 //CUSTOM FILTER
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
@@ -78,6 +78,7 @@ public class ProjectProdSecurityConfig {
 
                 .authorizeHttpRequests(request -> request.requestMatchers(version+"/register-new-user",
                         "/invalidSession").permitAll()
+                        .requestMatchers("/app/actuator/**").hasRole("ADMIN")
                         .requestMatchers(version+"/user-detail",version+"/all-user-detail",version+"/user").authenticated()
                 );
 
