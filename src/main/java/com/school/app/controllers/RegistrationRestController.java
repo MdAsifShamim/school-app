@@ -1,11 +1,14 @@
 package com.school.app.controllers;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,4 +46,9 @@ public class RegistrationRestController {
         return response;
     }
 
+    @RequestMapping("/v1/user")
+    public User getUserDetailsAfterLogin(Authentication authentication) {
+        Optional<User> optionalUser = userRepository.findByEmail(authentication.getName());
+        return optionalUser.orElse(null);
+    }
 }

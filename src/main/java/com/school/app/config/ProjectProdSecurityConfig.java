@@ -3,6 +3,8 @@ package com.school.app.config;
 import com.school.app.exception.CustomAccessDeniedHandler;
 import com.school.app.exception.CustomBasicAuthenticationEntryPoint;
 import com.school.app.filter.CsrfCookieFilter;
+import com.school.app.filter.JWTTokenGenerator;
+import com.school.app.filter.JwtTokenValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,7 +32,7 @@ public class ProjectProdSecurityConfig {
     @Value("${schoolApp.version}")
     private String version;
 
-    @Value("${schoolapp.allow.origin}")
+    @Value("${schoolApp.origin}")
     private String allowOrigin;
 
     @Bean
@@ -39,10 +42,12 @@ public class ProjectProdSecurityConfig {
         requestHandler.setCsrfRequestAttributeName("_csrf");
 
         http
-                //Session Control added invalidate session URL and Max Session with single User,and its login prevent
-                .sessionManagement(smc->smc.invalidSessionUrl("/invalidSession")
+                //Session Stateless
+                .sessionManagement(smc->smc
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                         .maximumSessions(2)
-                        .maxSessionsPreventsLogin(true))
+                )
+
 
                 //ACCEPT ONLY HTTPS REQUEST
                 .requiresChannel(rcc->rcc.anyRequest().requiresSecure())
@@ -57,20 +62,24 @@ public class ProjectProdSecurityConfig {
                         corsConfig.setAllowedMethods(List.of("*")); //Allow all type of method
                         corsConfig.setAllowCredentials(true); //Allow authentication send with request
                         corsConfig.setAllowedHeaders(List.of("*"));  //Allow header
+                        corsConfig.setExposedHeaders(List.of("Authorization"));
                         corsConfig.setMaxAge(3600L);
                         return corsConfig;
                     }
                 }))
                 //Handle CSRF TOKEN GENERATION
                 .csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler)
-                        .ignoringRequestMatchers(version+"/register-new-user")
+                        .ignoringRequestMatchers(version+"/register-new-user","/app/actuator/**")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 //CUSTOM FILTER
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                .addFilterAfter(new JWTTokenGenerator(),BasicAuthenticationFilter.class)
+                .addFilterBefore(new JwtTokenValidator(),BasicAuthenticationFilter.class)
 
                 .authorizeHttpRequests(request -> request.requestMatchers(version+"/register-new-user",
                         "/invalidSession").permitAll()
-                        .requestMatchers(version+"/user-detail",version+"/all-user-detail").authenticated()
+                        .requestMatchers("/app/actuator/**").hasRole("ADMIN")
+                        .requestMatchers(version+"/user-detail",version+"/all-user-detail",version+"/user").authenticated()
                 );
 
         http.formLogin(Customizer.withDefaults());
